@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +28,13 @@ public class ProfileActivity extends Fragment {
      * The fragment argument representing the section number for this
      * fragment.
      */
+    private View rootView;
     private static final String ARG_SECTION_NUMBER = "section_number";
+    public static final String STATE_PROFILE_URI = "profile uri";
     private ViewGroup classContainer;
     private ImageView ivProfile;
     private String profileUri;
+
     /**
      * Returns a new instance of this fragment for the given section
      * number.
@@ -49,28 +53,45 @@ public class ProfileActivity extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_profile, container, false);
+        rootView = inflater.inflate(R.layout.activity_profile, container, false);
         classContainer = container;
+        ivProfile = (ImageView)rootView.findViewById(R.id.profileImage);
+        loadPreferences(rootView);
         Button btnApply = (Button)rootView.findViewById(R.id.btnApply);
         btnApply.setOnClickListener(myListener);
         Button btnCancel = (Button)rootView.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(myListener);
-        ivProfile = (ImageView)rootView.findViewById(R.id.profileImage);
-        //if(profileUri!=null)
-        //Log.d("YeLinDebug", "URI: " + profileUri);
-            //setImage(Uri.parse(profileUri));
+        /*
+        if(profileUri!=null) {
+            Log.d("YeLinDebug", "URI: " + profileUri.toString());
+            setImage(profileUri);
+        }
+        */
         ivProfile.setOnClickListener(myListener);
         retrieveInfo(rootView);
         return rootView;
     }
-
+    /*
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState != null) {
             //Restore the fragment's state here
+            profileUri = Uri.parse(savedInstanceState.getString(STATE_PROFILE_URI));
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+        outState.putString(STATE_PROFILE_URI, profileUri.toString());
+
+    }
+    */
+
+
 
     private View.OnClickListener myListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -78,7 +99,7 @@ public class ProfileActivity extends Fragment {
             switch (v.getId()){
                 case R.id.btnApply:
                     Boolean request = validateFillinInformations();
-                    request = updateToDatabase() && request;
+                    request = savePreferences(rootView) && request;
                     if(request == true)
                         Toast.makeText(getActivity(), "Information has updated", Toast.LENGTH_SHORT).show();
                     else
@@ -105,11 +126,25 @@ public class ProfileActivity extends Fragment {
         return true;
     }
 
+    protected boolean savePreferences(View rootView){
+        EditText etPDesc = (EditText)rootView.findViewById(R.id.etPDescription);
+        String[] pInfo = {etPDesc.getText().toString(), profileUri};
+        String[] gInfo = {};
+        SignInManager.updateInstances(pInfo, gInfo);
+        SignInManager.setSharedPreferences();
+        return true;
+    }
+
+    protected boolean loadPreferences(View rootView){
+        SignInManager.getSharedPreferences();
+        return true;
+    }
+
     private void retrieveInfo(View rootView){
 
         String[] gInfo = {MainActivity.accountId, "8453544", "This is his niece."};
         String[] pInfo = {"Ah Lin", "Block 412, Jurong West Street 23, Singapore 640412",
-                "Person is currently suffering dementia"};
+                SignInManager.patientDescription};
 
         int[] gEditText = {R.id.etGName, R.id.etGContact, R.id.etGDescription};
         int[] pEditText = {R.id.etPName, R.id.etPAddress, R.id.etPDescription};
@@ -123,6 +158,8 @@ public class ProfileActivity extends Fragment {
             EditText tempET = (EditText)rootView.findViewById(pEditText[i]);
             tempET.setText(pInfo[i]);
         }
+
+        setImage(Uri.parse(SignInManager.patientPhotoUri));
     }
 
     public void showDialogBox(Context context){
@@ -159,16 +196,19 @@ public class ProfileActivity extends Fragment {
     }
 
     protected void setImage(Uri targetUri){
-
-
             //BitmapFactory.Options o = new BitmapFactory.Options();
             //o.inSampleSize = 5;
             //bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri),
             //        null, o);
             //bitmap = shrinkBitmap(targetUri.toString(), 150, 150);
+        if(targetUri.toString() == "")
+            ivProfile.setImageResource(R.drawable.default_profile);
+        else {
             ivProfile.setImageBitmap(
                     decodeSampledBitmapFromResource(targetUri, ivProfile.getWidth(), ivProfile.getHeight()));
             profileUri = targetUri.toString();
+            Log.d("YelinDebug",profileUri);
+        }
             //ivProfile.setImageBitmap(bitmap);
 
     }
@@ -184,7 +224,15 @@ public class ProfileActivity extends Fragment {
                     null, options);
 
             // Calculate inSampleSize
+
+            if(reqWidth == 0 && reqHeight == 0){
+                reqWidth = Integer.parseInt(SignInManager.patientPhotoWScale);
+                reqHeight = Integer.parseInt(SignInManager.patientPhotoHScale);
+            }
+
             options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            Log.d("YelinDebug","Sample Size: " + options.inSampleSize);
+
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
             return BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri),
@@ -214,7 +262,8 @@ public class ProfileActivity extends Fragment {
                 inSampleSize *= 2;
             }
         }
-
+        SignInManager.patientPhotoWScale = String.valueOf(reqWidth);
+        SignInManager.patientPhotoHScale = String.valueOf(reqHeight);
         return inSampleSize;
     }
 
@@ -226,12 +275,5 @@ public class ProfileActivity extends Fragment {
                 getArguments().getInt(ARG_SECTION_NUMBER));
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-        //Save the fragment's state here
-
-
-    }
 }

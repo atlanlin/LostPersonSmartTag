@@ -2,7 +2,6 @@ package com.yelling.lostpersonsmarttag;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -31,12 +30,21 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
     protected static String accountId;
+    //private FragmentManager fragmentManager = getFragmentManager();
+    private android.app.Fragment replacedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
+        if (savedInstanceState != null) {
+            //Restore the fragment's instance
+            replacedFragment = getFragmentManager().getFragment(
+                    savedInstanceState, "mContent");
 
+        }
+        */
         ActionBar actionBar=getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
 
@@ -53,11 +61,10 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        android.app.Fragment replacedFragment;
         Boolean isLogout = false;
         switch(position){
             case 0:
@@ -83,7 +90,7 @@ public class MainActivity extends ActionBarActivity
             Intent intent = new Intent(this, SigninActivity.class);
             startActivity(intent);
         }else {
-            fragmentManager.beginTransaction()
+            getFragmentManager().beginTransaction()
                     .replace(R.id.container, replacedFragment)
                     .commit();
         }
@@ -146,7 +153,17 @@ public class MainActivity extends ActionBarActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
+    /*
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        //Save the fragment's instance
+        getFragmentManager().putFragment(outState, "mContent", replacedFragment);
+
+
+    }
+    */
 
     /**
      * A placeholder fragment containing a simple view.

@@ -10,7 +10,27 @@ import android.util.Log;
  */
 public class SignInManager {
 
-    protected static final String PREFS_NAME = "SigninPrefs";
+    protected static final String G_PREFS_NAME = "G_SigninPrefs";
+    protected static final String G_PREFS_URI = "G_ProfileUri";
+    protected static final String G_PREF_ADDRESS = "G_Address";
+    protected static final String G_PREFS_DESC = "G_Description";
+
+    protected static final String P_PREFS_NAME = "P_SigninPrefs";
+    protected static final String P_PREFS_URI = "P_ProfileUri";
+    protected static final String P_PREF_ADDRESS = "P_Address";
+    protected static final String P_PREFS_DESC = "P_Description";
+
+    protected static final String P_PREFS_PHOTO_WIDTH = "P Width";
+    protected static final String P_PREFS_PHOTO_HEIGHT = "P Height";
+
+    //protected static final String[] pContainedInfo = {"P Name", "P Profile Uri", "P Address", "P Description"};
+    //protected static final String[] gGuardianInfo = {"G Name", "G Address", "G Description"};
+
+    protected static String patientDescription;
+    protected static String patientPhotoUri;
+    protected static String patientPhotoWScale;
+    protected static String patientPhotoHScale;
+
 
     protected static boolean signinRequest(String username, String password){
         if(username.equals(""))
@@ -24,7 +44,7 @@ public class SignInManager {
         //prefs.edit().putString("userid", userId).commit();
         Context applicationContext = SigninActivity.getContextOfApplication();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        prefs.edit().putString(PREFS_NAME, userId).commit();
+        prefs.edit().putString(G_PREFS_NAME, userId).commit();
         /*
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -49,8 +69,31 @@ public class SignInManager {
         */
         Context applicationContext = SigninActivity.getContextOfApplication();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        String userId = prefs.getString(PREFS_NAME, "");
+        String userId = prefs.getString(G_PREFS_NAME, "");
         return userId;
+    }
+
+    protected static void getSharedPreferences(){
+        Context applicationContext = SigninActivity.getContextOfApplication();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        patientDescription = prefs.getString(P_PREFS_DESC, "Person is currently suffering dementia.");
+        patientPhotoUri = prefs.getString(P_PREFS_URI, "");
+        patientPhotoWScale = prefs.getString(P_PREFS_PHOTO_WIDTH, "1024");
+        patientPhotoHScale = prefs.getString(P_PREFS_PHOTO_HEIGHT, "1024");
+    }
+
+    protected static void setSharedPreferences(){
+        Context applicationContext = SigninActivity.getContextOfApplication();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        prefs.edit().putString(P_PREFS_DESC, patientDescription).commit();
+        prefs.edit().putString(P_PREFS_URI, patientPhotoUri).commit();
+        prefs.edit().putString(P_PREFS_PHOTO_WIDTH, patientPhotoWScale).commit();
+        prefs.edit().putString(P_PREFS_PHOTO_HEIGHT, patientPhotoHScale).commit();
+    }
+
+    protected static void updateInstances(String[] pInfo, String[] gInfo){
+        patientDescription = pInfo[0];
+        patientPhotoUri = pInfo[1];
     }
 
     protected static void clearUserId(Context context){
