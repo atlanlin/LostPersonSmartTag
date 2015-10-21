@@ -77,6 +77,9 @@ public class MainActivity extends ActionBarActivity
                 replacedFragment = ScannerActivity.newInstance(position + 1);
                 break;
             case 3:
+                replacedFragment = ScanHistoryActivity.newInstance(position + 1);
+                break;
+            case 4:
                 replacedFragment = PlaceholderFragment.newInstance(position + 1);
                 SignInManager.clearUserId(MainActivity.this);
                 accountId = "";
@@ -109,6 +112,9 @@ public class MainActivity extends ActionBarActivity
                 break;
             case 4:
                 mTitle = getString(R.string.title_section4);
+                break;
+            case 5:
+                mTitle = getString(R.string.title_section5);
                 break;
         }
     }
