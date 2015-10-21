@@ -1,0 +1,168 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/main_bg" >
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    tools:context="com.yelling.lostpersonsmarttag.ProfileActivity"
+    >
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Patient's Info"
+        style="@style/MySubTitleFont"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical"
+        >
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/default_profile"
+            android:layout_margin="30dp"
+            android:adjustViewBounds="true"
+            
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etPName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MyTextFont"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Address"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etPAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MyTextFont"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etPDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:minLines="5"
+            style="@style/MyTextFont"
+            />
+    </LinearLayout>
+
+    <TextView
+        style="@style/MySubTitleFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guardian's Info"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical"
+        >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etGName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MyTextFont"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etGContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MyTextFont"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            style="@style/MyLabelFont"
+            />
+        <EditText
+            android:id="@+id/etGDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:minLines="5"
+            style="@style/MyTextFont"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <Button
+            style="@style/Base.TextAppearance.AppCompat.Button"
+            android:id="@+id/btnApply"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Apply Changes"
+            android:layout_weight="2"
+            />
+        <Button
+            style="@style/Base.TextAppearance.AppCompat.Widget.Button"
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>
+</RelativeLayout>

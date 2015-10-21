@@ -1,0 +1,33 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:orientation="vertical"
+    android:background="@drawable/main_bg"
+    tools:context="com.yelling.lostpersonsmarttag.ScannerActivity">
+
+    <Button
+        android:id="@+id/btnScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan"
+        />
+
+    <TextView
+        android:id="@+id/tvFormat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MyLabelFont"
+        android:freezesText="true"
+        />
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MyLabelFont"
+        android:freezesText="true"
+        />
+
+
+</LinearLayout>

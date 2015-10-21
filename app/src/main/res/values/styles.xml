@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+    <style name="MySubTitleFont" parent="@style/Base.TextAppearance.AppCompat.Title.Inverse">
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+    <style name="MyLabelFont" parent="@style/Base.TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="MyTextFont" parent="@style/Base.TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="MySigninFont" parent="@style/Base.TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

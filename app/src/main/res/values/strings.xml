@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Lost Person Smart Tag</string>
+
+    <string name="title_section1">Profile</string>
+    <string name="title_section2">QR Generator</string>
+    <string name="title_section3">Scanner</string>
+    <string name="title_section4">Log Out</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_signin">SigninActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_qr_generator">QrGeneratorActivity</string>
+    <string name="title_activity_scanner">ScannerActivity</string>
+    <string name="title_activity_scanresult">ScanresultActivity</string>
+    <string name="title_activity_first_sign_in">FirstSignInActivity</string>
+
+    <string name="gallery">Image Gallery</string>
+    <string name="take_pic">Take Photo</string>
+</resources>
