@@ -1,14 +1,16 @@
 package com.yelling.lostpersonsmarttag;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
-//import android.support.v4.app.Fragment;
-import android.app.Fragment;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -24,10 +26,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
+//import android.support.v4.app.Fragment;
+
 
 public class QrGeneratorActivity extends Fragment {
 
     protected ImageView ivQrCode;
+    protected Bitmap qrCodeBitmap;
 
     /**
      * The fragment argument representing the section number for this
@@ -53,22 +61,85 @@ public class QrGeneratorActivity extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_qr_generator, container, false);
+        final View rootView = inflater.inflate(R.layout.activity_qr_generator, container, false);
         ivQrCode = (ImageView)rootView.findViewById(R.id.ivQrCode);
 
         Button btnGenerate = (Button)rootView.findViewById(R.id.btnGenerate);
+        Button btnSaveQR = (Button)rootView.findViewById(R.id.btnSaveQR);
         btnGenerate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isNetworkAvailable())
-                    createRequest();
+                if(isNetworkAvailable()) {
+                    createRequest(rootView);
+                }
                 else
                     Toast.makeText(getActivity(), "Connection not availabe. Please check your network" +
                             " Connection.", Toast.LENGTH_LONG).show();
             }
         });
 
+
+        btnSaveQR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //MediaStore.Images.Media.insertImage(getContentResolver(), yourBitmap, yourTitle , yourDescription);
+                //String url = CapturePhotoUtils.insertImage(getActivity().getContentResolver(), qrCodeBitmap, "Smart Tag QR Code", "Smart tag qr");
+                createDirectoryAndSaveFile(qrCodeBitmap, "QR_Code_" + System.currentTimeMillis());
+                //MediaScannerConnection.MediaScannerConnectionClient mediaClient = new MediaScannerConnection.MediaScannerConnectionClient();
+                String url = "file://" + Environment.getExternalStorageDirectory();
+                //new MediaScannerConnection(getActivity().getApplicationContext(), null).scanFile(url, MimeTypeMap.getFileExtensionFromUrl(url));
+                //getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"
+                  //      + Environment.getExternalStorageDirectory())));
+                Toast.makeText(getActivity().getApplicationContext(), "Saved image at " +
+                        "SmartTag Folder.", Toast.LENGTH_LONG).show();
+
+
+
+            }
+        });
+
         return rootView;
+    }
+
+    private void createDirectoryAndSaveFile(Bitmap imageToSave, String fileName) {
+
+        File direct = new File(Environment.getExternalStorageDirectory() + "/DCIM/SmartTag");
+
+        if (!direct.exists()) {
+            File wallpaperDirectory = new File("/sdcard/SmartTag/");
+            wallpaperDirectory.mkdirs();
+        }
+
+        File file = new File(new File("/sdcard/SmartTag"), fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            imageToSave.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MediaScannerConnection.scanFile(getActivity(), new String[]{
+
+                        file.getAbsolutePath()},
+
+                null, new MediaScannerConnection.OnScanCompletedListener() {
+
+                    public void onScanCompleted(String path, Uri uri)
+
+                    {
+                        //Toast.makeText(getActivity().getApplicationContext(), "Saved image at " +
+                        //"gallery.", Toast.LENGTH_LONG).show();
+                        Log.d("YeLinDebug", "Saved image at " + uri.toString());
+
+                    }
+
+                });
+
+
     }
 
     @Override
@@ -78,7 +149,7 @@ public class QrGeneratorActivity extends Fragment {
                 getArguments().getInt(ARG_SECTION_NUMBER));
     }
 
-    private void createRequest(){
+    private void createRequest(final View rootView){
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -98,6 +169,9 @@ public class QrGeneratorActivity extends Fragment {
                         ivQrCode.requestLayout();
                         ivQrCode.getLayoutParams().height = 720;
                         ivQrCode.setImageBitmap(bitmap);
+                        qrCodeBitmap = bitmap;
+                        Button btnSaveQR = (Button)rootView.findViewById(R.id.btnSaveQR);
+                        btnSaveQR.setEnabled(true);
                     }
                 }, 0, 0, null,
                 new Response.ErrorListener() {

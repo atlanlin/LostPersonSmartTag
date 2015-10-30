@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg" >
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        tools:context="com.yelling.lostpersonsmarttag.ProfileActivity"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                style="@style/MySubTitleFont"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guardian's Info"
+                />
+            <LinearLayout
+                android:id="@+id/guardianLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:orientation="vertical"
+                >
+
+                <EditText
+                    android:id="@+id/etLoginName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Login ID"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etPassword"
+                    android:hint="Password"
+                    android:password="true"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etConfirmPassword"
+                    android:hint="Confirm Password"
+                    android:password="true"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etGName"
+                    android:hint="Guardian Name"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etGContact"
+                    android:hint="Guardian Phone No"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:id="@+id/etGDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:minLines="5"
+                    android:hint="How does guardian relate to the ward (e.g. I am his niece.)"
+                    style="@style/MyTextFont"
+                    />
+
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ward Info"
+                style="@style/MySubTitleFont"
+                />
+
+            <LinearLayout
+                android:id="@+id/wardLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:orientation="vertical"
+                >
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etWName"
+                    android:hint="Ward Name"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etWAddress"
+                    android:hint="Ward's Address"
+                    style="@style/MyTextFont"
+                    />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etWDescription"
+                    android:gravity="top"
+                    android:minLines="5"
+                    android:hint="Describe the condition of the ward (e.g. He is suffering dementia"
+                    />
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <Button
+                    style="@style/Base.TextAppearance.AppCompat.Button"
+                    android:id="@+id/btnRegister"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Register"
+                    android:layout_weight="2"
+                    />
+                <Button
+                    style="@style/Base.TextAppearance.AppCompat.Widget.Button"
+                    android:id="@+id/btnClear"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    android:layout_weight="1"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+     </ScrollView>
+</RelativeLayout>

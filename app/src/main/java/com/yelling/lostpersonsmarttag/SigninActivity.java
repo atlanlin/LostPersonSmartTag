@@ -4,14 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class SigninActivity extends ActionBarActivity {
+
+public class SigninActivity extends ActionBarActivity  implements MyActivityInteface{
 
     public static final String USERNAME_KEY = "username";
     public static Context contextOfApplication;
@@ -36,6 +40,9 @@ public class SigninActivity extends ActionBarActivity {
 
         Button btnSignin = (Button) findViewById(R.id.btnSignin);
         btnSignin.setOnClickListener(myListener);
+        Button btnSignup = (Button) findViewById(R.id.btnSignup);
+        btnSignup.setOnClickListener(myListener);
+
 
     }
 
@@ -69,9 +76,9 @@ public class SigninActivity extends ActionBarActivity {
                     EditText etUsername=(EditText)findViewById(R.id.etUsername);
                     EditText etPassword=(EditText)findViewById(R.id.etPassword);
                     String username = etUsername.getText().toString();
-                    Boolean request = SignInManager.signinRequest(username
+                    SignInManager.signinRequest(SigninActivity.this, username
                             , etPassword.getText().toString());
-                    if(request){
+                    if(false){
                         myIntent= new Intent(SigninActivity.this, MainActivity.class);
                         SignInManager.saveUserId(SigninActivity.this, username);
                         myIntent.putExtra(USERNAME_KEY, username);
@@ -79,13 +86,37 @@ public class SigninActivity extends ActionBarActivity {
                     }
                     //Toast.makeText(SigninActivity.this, Boolean.toString(request), Toast.LENGTH_SHORT).show();
                     break;
+                case R.id.btnSignup:
+                    goToSignUpPage();
+                    break;
             }
         }
     };
 
+    @Override
+    public void callbackFunction(JSONObject jsonObject){
+        try {
+            Log.d("YeLinDebug", jsonObject.getString("errorCode"));
+            Log.d("YeLinDebug", jsonObject.getString("errorMsg"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void callbackFunction(String result){
+
+    }
+
     private void gotoMainPage(){
         //EditText editText = (EditText) findViewById(R.id.edit_message);
         //String message = editText.getText().toString();
+        startActivity(myIntent);
+    }
+
+    private void goToSignUpPage(){
+        Intent myIntent= new Intent(this, SignupActivity.class);
         startActivity(myIntent);
     }
 
