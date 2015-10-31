@@ -2,6 +2,7 @@ package com.yelling.lostpersonsmarttag;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +27,7 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
     private ArrayList<EditText> guardianEditTextList;
     private ArrayList<EditText> wardEditTextList;
     private String userLoginId;
-    public static final String SIGNUP_URL = "";
+    public static final String SIGNUP_URL = "http://10.27.186.191:8082/ASESvc.svc/test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,7 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
                     @Override
                     public void onFetchFinish(JSONObject response) {
                         String result = null;
+                        Log.d("YeLinDebug", "JsonObject gets response");
                         try {
                             result = response.getString("SignupResult").toString();
                         } catch (JSONException e) {
@@ -135,7 +137,7 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
             if(guardianEditTextList.get(i).getText().toString().equals(""))
                 return true;
         }
-        for(int i=0; i<guardianEditTextList.size(); i++){
+        for(int i=0; i<wardEditTextList.size(); i++){
             if(wardEditTextList.get(i).getText().toString().equals(""))
                 return true;
         }

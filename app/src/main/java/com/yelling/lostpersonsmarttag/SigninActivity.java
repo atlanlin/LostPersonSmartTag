@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -78,7 +77,7 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
                     String username = etUsername.getText().toString();
                     SignInManager.signinRequest(SigninActivity.this, username
                             , etPassword.getText().toString());
-                    if(false){
+                    if(true){
                         myIntent= new Intent(SigninActivity.this, MainActivity.class);
                         SignInManager.saveUserId(SigninActivity.this, username);
                         myIntent.putExtra(USERNAME_KEY, username);
@@ -96,9 +95,12 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
     @Override
     public void callbackFunction(JSONObject jsonObject){
         try {
-            Log.d("YeLinDebug", jsonObject.getString("errorCode"));
-            Log.d("YeLinDebug", jsonObject.getString("errorMsg"));
-        } catch (JSONException e) {
+            //JSONObject jsob = jsonObject.getJSONObject("d");
+            String str = jsonObject.toString();
+            //Log.d("YeLinDebug", jsob.getString("errorCode"));
+            //Log.d("YeLinDebug", jsob.getString("errorMsg"));
+            Log.d("YeLinDebug", str);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -116,7 +118,7 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
     }
 
     private void goToSignUpPage(){
-        Intent myIntent= new Intent(this, SignupActivity.class);
+        Intent myIntent= new Intent(SigninActivity.this, SignupActivity.class);
         startActivity(myIntent);
     }
 

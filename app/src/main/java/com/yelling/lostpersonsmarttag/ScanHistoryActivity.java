@@ -9,12 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by Yelling on 21/10/15.
@@ -47,50 +50,51 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.activity_scan_history, container, false);
-        userId = SignInManager.getUserId(getActivity());
-        //JSONObject eventList = fetchEventsArray(userId);
-
-
-
-
+        //userId = SignInManager.getUserId(getActivity());
+        fetchEventsArray(MainActivity.guardian_id);
 
         return rootView;
     }
 
 
-    private void createEventFragments(){
 
-    }
-
-    private EmergencyEvent[] createEventObjects(JSONObject jsonObject){
+    private ArrayList<EmergencyEvent> createEventObjects(JSONObject jsonObject){
         ArrayList<EmergencyEvent> emergencyEventList = new ArrayList<EmergencyEvent>();
-        int totalEvents;
+        Gson gson = new Gson();
         try {
-            totalEvents = jsonObject.getInt("totalEvents");
-            for(int i=0; i<totalEvents; i++){
-                String eventId = jsonObject.getString("eventId" + i);
-                String wardId = jsonObject.getString("wardId" + i);
-                String wardName = jsonObject.getString("wardName" + i);
-                emergencyEventList.add(new EmergencyEvent(jsonObject.getString("id" + i),
-                        jsonObject.getString("ward_id" + i),
-                        jsonObject.getString("ward_name" + i),
-                        jsonObject.getInt("is_approved" + i),
-                        jsonObject.getInt("is_ongoing" + i),
-                        jsonObject.getString("guardian_description"),
-                        jsonObject.getString("finder_description"),
-                        jsonObject.getString("cookie")));
-
+            JSONObject dObject= jsonObject.getJSONObject("d");
+            JSONArray jsonArray = dObject.getJSONArray("list");
+            for(int i=0; i<jsonArray.length(); i++){
+                JsonElement eachJsonObject = (JsonElement)jsonArray.get(i);
+                EmergencyEvent eachEvent = gson.fromJson(eachJsonObject, EmergencyEvent.class);
+                emergencyEventList.add(eachEvent);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return null;
+        return emergencyEventList;
+    }
+
+    private ArrayList<ScanHistoryFragment> createFragmentsFromEventClass(
+                ArrayList<EmergencyEvent> emergencyEventArrayList){
+        ArrayList<ScanHistoryFragment> scanHistoryFragmentArrayList = new ArrayList<ScanHistoryFragment>();
+        for(int i=0; i<emergencyEventArrayList.size(); i++){
+            ScanHistoryFragment scanHistoryFragment = new ScanHistoryFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(ScanHistoryFragment.ARGS_EMERGENCY_EVENT, emergencyEventArrayList.get(i));
+            scanHistoryFragment.setArguments(args);
+            scanHistoryFragmentArrayList.add(scanHistoryFragment);
+        }
+        return scanHistoryFragmentArrayList;
+
     }
 
     private void fetchEventsArray(String userId){
-        String url = "" + "?userId=" + userId;
+        String url = MainActivity.SERVER_URI + "/getEvents";
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("guardian_id", MainActivity.guardian_id);
         final MyActivityInteface callback = this;
-        JsonController.jsonObjectGetRequest(url,
+        JsonController.jsonObjectPostRequest(url, params,
                 new MyCallbackInterface() {
                     @Override
                     public void onFetchFinish(JSONObject response) {
@@ -116,8 +120,19 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
 
     @Override
     public void callbackFunction(JSONObject jsonObject){
-        createEventObjects(jsonObject);
+        ArrayList<EmergencyEvent> emergencyEventArrayList = createEventObjects(jsonObject);
+        ArrayList<ScanHistoryFragment> historyFragmentArrayList =
+                createFragmentsFromEventClass(emergencyEventArrayList);
 
+        // Add the fragment to the 'fragment_container' FrameLayout
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        for(int i=0; i<historyFragmentArrayList.size(); i++){
+            ft.add(R.id.fragment_container, historyFragmentArrayList.get(i));
+        }
+        ft.commit();
+
+        /*
         ScanHistoryFragment fragmentone = new ScanHistoryFragment();
         Bundle args2 = new Bundle();
         args2.putString(ScanHistoryFragment.ARGS_NAME, "Boon Eng");
@@ -143,13 +158,7 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
         args2.putString(ScanHistoryFragment.ARGS_DATETIME, new Date(2015, 9, 20, 11, 00).toString());
         fragmentthree.setArguments(args2);
 
-        // Add the fragment to the 'fragment_container' FrameLayout
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-
-        ft.add(R.id.fragment_container, fragmentone);
-        ft.add(R.id.fragment_container, fragmenttwo);
-        ft.add(R.id.fragment_container, fragmentthree);
-        ft.commit();
+        */
     }
 
     @Override

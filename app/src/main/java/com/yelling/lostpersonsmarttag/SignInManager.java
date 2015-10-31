@@ -8,6 +8,8 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 /**
  * Created by Yelling on 24/9/15.
  */
@@ -36,21 +38,26 @@ public class SignInManager{
 
 
     protected static void signinRequest(final MyActivityInteface callback, String username, String password){
-        String url= "http://10.27.186.191:62969/ASESvc.svc/test" + "?username=" + username + "&password=" + password;
-        JsonController.jsonObjectGetRequest(url, new MyCallbackInterface() {
+        //String url= "http://10.27.186.191:62969/ASESvc.svc/test" + "?username=" + username + "&password=" + password;
+        String url = "http://10.27.186.191:8082/ASESvc.svc/getWards";
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("guardian_id", "1");
+        JsonController.jsonObjectPostRequest(url, params, new MyCallbackInterface() {
             @Override
             public void onFetchFinish(JSONObject response) {
+
+                Log.d("YeLinDebug", "JsonObject Got response");
                 callback.callbackFunction(response);
             }
 
             @Override
             public void onFetchFinish(JSONArray response) {
-
+                Log.d("YeLinDebug", "JsonArray Got response");
             }
 
             @Override
             public void onFetchFinish(String result) {
-
+                Log.d("YeLinDebug", "String Got response");
             }
         });
     }

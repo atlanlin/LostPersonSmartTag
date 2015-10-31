@@ -142,7 +142,7 @@ public class ProfileActivity extends Fragment {
 
     private void retrieveInfo(View rootView){
 
-        String[] gInfo = {MainActivity.accountId, "8453544", "This is his niece."};
+        String[] gInfo = {MainActivity.guardian_id, "8453544", "This is his niece."};
         String[] pInfo = {"Ah Lin", "Block 412, Jurong West Street 23, Singapore 640412",
                 SignInManager.patientDescription};
 

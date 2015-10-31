@@ -24,12 +24,13 @@ public class MainActivity extends ActionBarActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    public static final String SERVER_URI = "http://10.27.186.191:8082/ASESvc.svc";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-    protected static String accountId;
+    protected static String guardian_id;
     //private FragmentManager fragmentManager = getFragmentManager();
     private android.app.Fragment replacedFragment;
 
@@ -49,7 +50,7 @@ public class MainActivity extends ActionBarActivity
         actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
 
         Intent intent = getIntent();
-        accountId = intent.getStringExtra(SigninActivity.USERNAME_KEY);
+        guardian_id = intent.getStringExtra(SigninActivity.USERNAME_KEY);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -83,7 +84,7 @@ public class MainActivity extends ActionBarActivity
             case 4:
                 replacedFragment = PlaceholderFragment.newInstance(position + 1);
                 SignInManager.clearUserId(MainActivity.this);
-                accountId = "";
+                guardian_id = "";
                 isLogout = true;
                 break;
             default:
