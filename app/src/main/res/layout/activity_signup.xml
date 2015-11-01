@@ -81,6 +81,13 @@
                     android:hint="How does guardian relate to the ward (e.g. I am his niece.)"
                     style="@style/MyTextFont"
                     />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etGAddress"
+                    android:hint="Guardian's Address"
+                    style="@style/MyTextFont"
+                    />
 
             </LinearLayout>
 
@@ -105,13 +112,6 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/etWName"
                     android:hint="Ward Name"
-                    style="@style/MyTextFont"
-                    />
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/etWAddress"
-                    android:hint="Ward's Address"
                     style="@style/MyTextFont"
                     />
                 <EditText

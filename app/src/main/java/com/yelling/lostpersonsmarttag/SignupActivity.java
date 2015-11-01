@@ -2,7 +2,6 @@ package com.yelling.lostpersonsmarttag;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +10,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import org.json.JSONArray;
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +27,6 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
     private ArrayList<EditText> guardianEditTextList;
     private ArrayList<EditText> wardEditTextList;
     private String userLoginId;
-    public static final String SIGNUP_URL = "http://10.27.186.191:8082/ASESvc.svc/test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,47 +62,41 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
                 if(isAnyFieldEmpty()){
                     Toast.makeText(SignupActivity.this, "Some fields are not filled up"
                             , Toast.LENGTH_LONG).show();
+                }else if(isPasswordSame()){
+                    Toast.makeText(SignupActivity.this, "Passwords are not the same"
+                            , Toast.LENGTH_LONG).show();
                 }else{
                     HashMap<String,String> params = createHashmapFromEditTexts();
                     String gcmToken = SignupManager.getGCMToken(userLoginId);
-                    params.put("GCMToken", gcmToken);
-                    signupOnServer(SignupActivity.this, params);
+                    Guardian guardian = new Guardian(params.get("etLoginName"), params.get("etPassword"),
+                            params.get("etGContact"), params.get("etGName"), params.get("etGDescription"),
+                            params.get("etGAddress"), null, gcmToken);
+                    Ward ward = new Ward(params.get("etWName"), params.get("etWDescription"), null);
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        Gson gson = new Gson();
+                        jsonObject.put("guardian", gson.toJson(guardian));
+                        jsonObject.put("ward", gson.toJson(ward));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    SignupManager.signupOnServer(SignupActivity.this, jsonObject);
                 }
             }
         });
     }
 
-    public static void signupOnServer(final MyActivityInteface callback, HashMap<String,String> params){
-        JsonController.jsonObjectPostRequest(SIGNUP_URL, params,
-                new MyCallbackInterface() {
-                    @Override
-                    public void onFetchFinish(JSONObject response) {
-                        String result = null;
-                        Log.d("YeLinDebug", "JsonObject gets response");
-                        try {
-                            result = response.getString("SignupResult").toString();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        callback.callbackFunction(result);
-                    }
 
-                    @Override
-                    public void onFetchFinish(JSONArray response) {
-
-                    }
-
-                    @Override
-                    public void onFetchFinish(String result) {
-
-                    }
-                });
+    private boolean isPasswordSame(){
+        EditText etPassword = (EditText)findViewById(R.id.etPassword);
+        EditText etConfirmPass = (EditText)findViewById(R.id.etConfirmPassword);
+        return etPassword.equals(etConfirmPass);
     }
-
 
 
     @Override
     public void callbackFunction(String result){
+        /*
         if(result == null){
             Toast.makeText(SignupActivity.this, "Signup unsuccessful", Toast.LENGTH_LONG).show();
             return;
@@ -116,10 +109,12 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
         }else{
             Toast.makeText(SignupActivity.this, "Signup unsuccessful", Toast.LENGTH_LONG).show();
         }
+        */
     }
 
     @Override
     public void callbackFunction(JSONObject jsonObject){
+        // write code here
 
     }
 

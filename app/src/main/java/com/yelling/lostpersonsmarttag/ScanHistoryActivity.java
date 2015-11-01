@@ -89,10 +89,10 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
 
     }
 
-    private void fetchEventsArray(String userId){
+    private void fetchEventsArray(String guardian_id){
         String url = MainActivity.SERVER_URI + "/getEvents";
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put("guardian_id", MainActivity.guardian_id);
+        params.put("guardian_id", guardian_id);
         final MyActivityInteface callback = this;
         JsonController.jsonObjectPostRequest(url, params,
                 new MyCallbackInterface() {

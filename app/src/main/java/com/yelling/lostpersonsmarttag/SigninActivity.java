@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,12 +76,7 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
                     String username = etUsername.getText().toString();
                     SignInManager.signinRequest(SigninActivity.this, username
                             , etPassword.getText().toString());
-                    if(true){
-                        myIntent= new Intent(SigninActivity.this, MainActivity.class);
-                        SignInManager.saveUserId(SigninActivity.this, username);
-                        myIntent.putExtra(USERNAME_KEY, username);
-                        gotoMainPage();
-                    }
+
                     //Toast.makeText(SigninActivity.this, Boolean.toString(request), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.btnSignup:
@@ -95,11 +89,16 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
     @Override
     public void callbackFunction(JSONObject jsonObject){
         try {
-            //JSONObject jsob = jsonObject.getJSONObject("d");
-            String str = jsonObject.toString();
-            //Log.d("YeLinDebug", jsob.getString("errorCode"));
-            //Log.d("YeLinDebug", jsob.getString("errorMsg"));
-            Log.d("YeLinDebug", str);
+            JSONObject jsob = jsonObject.getJSONObject("d");
+            String guardian_id = String.valueOf(jsob.getInt("guardian_id"));
+            Boolean loginResult = jsob.getBoolean("login_success");
+            if(loginResult){
+                myIntent= new Intent(SigninActivity.this, MainActivity.class);
+                SignInManager.saveUserId(SigninActivity.this, guardian_id);
+                myIntent.putExtra(USERNAME_KEY, guardian_id);
+                gotoMainPage();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -28,20 +28,28 @@ public class SignInManager{
     protected static final String P_PREFS_PHOTO_WIDTH = "P Width";
     protected static final String P_PREFS_PHOTO_HEIGHT = "P Height";
 
+    protected static final String G_PREFS_PHOTO_WIDTH = "G Width";
+    protected static final String G_PREFS_PHOTO_HEIGHT = "G Height";
+
     //protected static final String[] pContainedInfo = {"P Name", "P Profile Uri", "P Address", "P Description"};
     //protected static final String[] gGuardianInfo = {"G Name", "G Address", "G Description"};
 
-    protected static String patientDescription;
+
     protected static String patientPhotoUri;
     protected static String patientPhotoWScale;
     protected static String patientPhotoHScale;
 
+    protected static String guardianPhotoUri;
+    protected static String guardianPhotoWScale;
+    protected static String guardianPhotoHScale;
+
 
     protected static void signinRequest(final MyActivityInteface callback, String username, String password){
         //String url= "http://10.27.186.191:62969/ASESvc.svc/test" + "?username=" + username + "&password=" + password;
-        String url = "http://10.27.186.191:8082/ASESvc.svc/getWards";
+        String url = MainActivity.SERVER_URI + "";
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put("guardian_id", "1");
+        params.put("login_id", username);
+        params.put("login_pw", password);
         JsonController.jsonObjectPostRequest(url, params, new MyCallbackInterface() {
             @Override
             public void onFetchFinish(JSONObject response) {
@@ -102,24 +110,31 @@ public class SignInManager{
     protected static void getSharedPreferences(){
         Context applicationContext = SigninActivity.getContextOfApplication();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        patientDescription = prefs.getString(P_PREFS_DESC, "Person is currently suffering dementia.");
         patientPhotoUri = prefs.getString(P_PREFS_URI, "");
         patientPhotoWScale = prefs.getString(P_PREFS_PHOTO_WIDTH, "1024");
         patientPhotoHScale = prefs.getString(P_PREFS_PHOTO_HEIGHT, "1024");
+
+        guardianPhotoUri = prefs.getString(G_PREFS_URI, "");
+        guardianPhotoWScale = prefs.getString(G_PREFS_PHOTO_WIDTH, "1024");
+        guardianPhotoHScale = prefs.getString(G_PREFS_PHOTO_HEIGHT, "1024");
+
     }
 
     protected static void setSharedPreferences(){
         Context applicationContext = SigninActivity.getContextOfApplication();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        prefs.edit().putString(P_PREFS_DESC, patientDescription).commit();
         prefs.edit().putString(P_PREFS_URI, patientPhotoUri).commit();
         prefs.edit().putString(P_PREFS_PHOTO_WIDTH, patientPhotoWScale).commit();
         prefs.edit().putString(P_PREFS_PHOTO_HEIGHT, patientPhotoHScale).commit();
+
+        prefs.edit().putString(G_PREFS_URI, guardianPhotoUri).commit();
+        prefs.edit().putString(G_PREFS_PHOTO_WIDTH, guardianPhotoWScale).commit();
+        prefs.edit().putString(G_PREFS_PHOTO_HEIGHT, guardianPhotoHScale).commit();
     }
 
     protected static void updateInstances(String[] pInfo, String[] gInfo){
-        patientDescription = pInfo[0];
-        patientPhotoUri = pInfo[1];
+        patientPhotoUri = pInfo[0];
+        guardianPhotoUri = gInfo[0];
     }
 
     protected static void clearUserId(Context context){

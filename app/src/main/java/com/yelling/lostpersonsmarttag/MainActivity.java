@@ -2,23 +2,34 @@ package com.yelling.lostpersonsmarttag;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
 //import android.support.v4.app.Fragment;
 //import android.support.v4.app.FragmentManager;
 
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, MyActivityInteface{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -31,12 +42,25 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
     protected static String guardian_id;
+    protected static Guardian myStaticGuardian;
+    private boolean guardianRetrieved;
+    private boolean wardRetrieved;
+    protected static Ward myStaticWard;
     //private FragmentManager fragmentManager = getFragmentManager();
     private android.app.Fragment replacedFragment;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        progressDialog = ProgressDialog.show(MainActivity.this, "Loading", "Please wait...");
+        guardianRetrieved = false;
+        wardRetrieved = false;
+        Intent intent = getIntent();
+        guardian_id = intent.getStringExtra(SigninActivity.USERNAME_KEY);
+        fetchGuardianObject(MainActivity.this, guardian_id);
+        fetchWardObject(MainActivity.this, guardian_id);
+
         setContentView(R.layout.activity_main);
         /*
         if (savedInstanceState != null) {
@@ -49,8 +73,6 @@ public class MainActivity extends ActionBarActivity
         ActionBar actionBar=getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
 
-        Intent intent = getIntent();
-        guardian_id = intent.getStringExtra(SigninActivity.USERNAME_KEY);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -61,6 +83,82 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+    }
+
+    private void fetchGuardianObject(final MyActivityInteface callback, String guardian_id){
+        String url = MainActivity.SERVER_URI + "/getGuardianDetail";
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("guardian_id", guardian_id);
+        JsonController.jsonObjectPostRequest(url, params, new MyCallbackInterface() {
+            @Override
+            public void onFetchFinish(JSONObject response) {
+                callback.callbackFunction(response);
+            }
+
+            @Override
+            public void onFetchFinish(JSONArray response) {
+
+            }
+
+            @Override
+            public void onFetchFinish(String result) {
+
+            }
+        });
+    }
+
+    private void fetchWardObject(final MyActivityInteface callback, String guardian_id){
+        String url = MainActivity.SERVER_URI + "/getWards";
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("guardian_id", guardian_id);
+        JsonController.jsonObjectPostRequest(url, params, new MyCallbackInterface() {
+            @Override
+            public void onFetchFinish(JSONObject response) {
+                callback.callbackFunction(response);
+            }
+
+            @Override
+            public void onFetchFinish(JSONArray response) {
+
+            }
+
+            @Override
+            public void onFetchFinish(String result) {
+
+            }
+        });
+    }
+
+    @Override
+    public void callbackFunction(String result){
+
+    }
+
+    @Override
+    public void callbackFunction(JSONObject jsonObject){
+        try {
+            JSONObject jsob = jsonObject.getJSONObject("d");
+            Gson gson = new Gson();
+            if(!jsob.isNull("guardian")) {
+                JsonElement guardianJson = (JsonElement) jsob.get("guardian");
+                myStaticGuardian = gson.fromJson(guardianJson, Guardian.class);
+                guardianRetrieved = true;
+            }else if(!jsob.isNull("list")){
+                JSONArray jsonArray = jsob.getJSONArray("list");
+                if(jsonArray.length()>0){
+                    JsonElement wardJson = (JsonElement)jsonArray.get(0);
+                    myStaticWard = gson.fromJson(wardJson, Ward.class);
+                }else{
+                    Log.d("YeLinDebug", "There are no ward under this guardian");
+                }
+                wardRetrieved = true;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(guardianRetrieved && wardRetrieved){
+            progressDialog.dismiss();
+        }
     }
 
 

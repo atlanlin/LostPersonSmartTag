@@ -159,7 +159,8 @@ public class QrGeneratorActivity extends Fragment {
         int height = size.y;
         Log.d("YellingDebug", "Width: " + Integer.toString(width));
         String url ="https://api.qrserver.com/v1/create-qr-code/?size=" + Integer.toString(width) +
-                "x" +Integer.toString(width) + "&data=http://www.yahoo.com.sg";
+                "x" +Integer.toString(width) + "&ward_id=" + MainActivity.myStaticWard.ward_id +
+                "&app=Lost_Person_Tag";
 
         // Retrieves an image specified by the URL, displays it in the UI.
         ImageRequest request = new ImageRequest(url,

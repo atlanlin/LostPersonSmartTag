@@ -19,10 +19,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 
-public class ProfileActivity extends Fragment {
+public class ProfileActivity extends Fragment implements MyActivityInteface{
 
     /**
      * The fragment argument representing the section number for this
@@ -32,8 +38,8 @@ public class ProfileActivity extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
     public static final String STATE_PROFILE_URI = "profile uri";
     private ViewGroup classContainer;
-    private ImageView ivProfile;
-    private String profileUri;
+    private ImageView ivProfile, guardianivProfile;
+    private String wardProfileUri, guardianProfileUri;
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -56,18 +62,20 @@ public class ProfileActivity extends Fragment {
         rootView = inflater.inflate(R.layout.activity_profile, container, false);
         classContainer = container;
         ivProfile = (ImageView)rootView.findViewById(R.id.profileImage);
+        guardianivProfile = (ImageView)rootView.findViewById(R.id.guardianProfileImage);
         loadPreferences(rootView);
         Button btnApply = (Button)rootView.findViewById(R.id.btnApply);
         btnApply.setOnClickListener(myListener);
         Button btnCancel = (Button)rootView.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(myListener);
         /*
-        if(profileUri!=null) {
-            Log.d("YeLinDebug", "URI: " + profileUri.toString());
-            setImage(profileUri);
+        if(wardProfileUri!=null) {
+            Log.d("YeLinDebug", "URI: " + wardProfileUri.toString());
+            setImage(wardProfileUri);
         }
         */
         ivProfile.setOnClickListener(myListener);
+        guardianivProfile.setOnClickListener(myListener);
         retrieveInfo(rootView);
         return rootView;
     }
@@ -77,7 +85,7 @@ public class ProfileActivity extends Fragment {
 
         if (savedInstanceState != null) {
             //Restore the fragment's state here
-            profileUri = Uri.parse(savedInstanceState.getString(STATE_PROFILE_URI));
+            wardProfileUri = Uri.parse(savedInstanceState.getString(STATE_PROFILE_URI));
         }
     }
 
@@ -86,7 +94,7 @@ public class ProfileActivity extends Fragment {
         super.onSaveInstanceState(outState);
 
         //Save the fragment's state here
-        outState.putString(STATE_PROFILE_URI, profileUri.toString());
+        outState.putString(STATE_PROFILE_URI, wardProfileUri.toString());
 
     }
     */
@@ -98,41 +106,109 @@ public class ProfileActivity extends Fragment {
             // do something when the button is clicked
             switch (v.getId()){
                 case R.id.btnApply:
-                    Boolean request = validateFillinInformations();
-                    request = savePreferences(rootView) && request;
-                    if(request == true)
-                        Toast.makeText(getActivity(), "Information has updated", Toast.LENGTH_SHORT).show();
-                    else
-                        Toast.makeText(getActivity(), "Unable to update, please validate information", Toast.LENGTH_SHORT).show();
 
+                    Guardian newGuardian = MainActivity.myStaticGuardian.copyOf();
+                    newGuardian = updateGuardian(newGuardian);
+                    Ward newWard = MainActivity.myStaticWard.copyOf();
+                    newWard = updateWard(newWard);
+                    Boolean request = validateFillinInformations(newGuardian, newWard);
+                    if(request) {
+                        MainActivity.myStaticGuardian = newGuardian;
+                        MainActivity.myStaticWard = newWard;
+                        savePreferences(rootView);
+                        updateDataToServer(ProfileActivity.this);
+                    }
                     break;
                 case R.id.btnCancel:
-
+                    restoreGuardianInfo();
+                    restoreWardInfo();
                     break;
                 case R.id.profileImage:
-                    showDialogBox(getActivity());
+                    showDialogBox(getActivity(), 0);
+                    break;
+                case R.id.guardianProfileImage:
+                    showDialogBox(getActivity(), 1);
                     break;
             }
         }
     };
 
-
-
-    private boolean validateFillinInformations(){
-        return true;
+    private Guardian updateGuardian(Guardian newGuardian){
+        EditText etGName = (EditText)rootView.findViewById(R.id.etGName);
+        newGuardian.name = etGName.getText().toString();
+        EditText etGAddress =(EditText)rootView.findViewById(R.id.etGAddress);
+        newGuardian.address = etGAddress.getText().toString();
+        EditText etGContact = (EditText)rootView.findViewById(R.id.etGContact);
+        newGuardian.contact_number = etGContact.getText().toString();
+        EditText etGDescription = (EditText)rootView.findViewById(R.id.etGDescription);
+        newGuardian.description = etGDescription.getText().toString();
+        return newGuardian;
     }
 
-    private boolean updateToDatabase(){
-        return true;
+    private Ward updateWard(Ward newWard){
+        EditText etWName = (EditText)rootView.findViewById(R.id.etPName);
+        newWard.name = etWName.getText().toString();
+        EditText etWDescription = (EditText)rootView.findViewById(R.id.etPDescription);
+        newWard.description = etWDescription.getText().toString();
+        return newWard;
     }
 
-    protected boolean savePreferences(View rootView){
+    private void restoreGuardianInfo(){
+        EditText etGName = (EditText)rootView.findViewById(R.id.etGName);
+        etGName.setText(MainActivity.myStaticGuardian.name);
+        EditText etGAddress = (EditText)rootView.findViewById(R.id.etGAddress);
+        etGAddress.setText(MainActivity.myStaticGuardian.address);
+        EditText etGContact = (EditText)rootView.findViewById(R.id.etGContact);
+        etGContact.setText(MainActivity.myStaticGuardian.contact_number);
+        EditText etGDescription = (EditText)rootView.findViewById(R.id.etGDescription);
+        etGDescription.setText(MainActivity.myStaticGuardian.description);
+    }
+
+    private void restoreWardInfo(){
+        EditText etWName = (EditText)rootView.findViewById(R.id.etPName);
+        etWName.setText(MainActivity.myStaticWard.name);
+        EditText etWDescription = (EditText)rootView.findViewById(R.id.etPDescription);
+        etWDescription.setText(MainActivity.myStaticWard.description);
+    }
+
+    private boolean validateFillinInformations(Guardian guardian, Ward ward){
+        return guardian.validateInfo() && ward.validateInfo();
+    }
+
+    private void updateDataToServer(final MyActivityInteface callback){
+        try {
+            String guardianUpdateUrl = MainActivity.SERVER_URI + "/updateGuardianDetail";
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("guardian", gson.toJson(MainActivity.myStaticGuardian));
+            JsonController.jsonObjectPostRequest(guardianUpdateUrl, jsonObject, new MyCallbackInterface() {
+                @Override
+                public void onFetchFinish(JSONObject response) {
+                    callback.callbackFunction(response);
+                }
+
+                @Override
+                public void onFetchFinish(JSONArray response) {
+
+                }
+
+                @Override
+                public void onFetchFinish(String result) {
+
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    protected void savePreferences(View rootView){
         EditText etPDesc = (EditText)rootView.findViewById(R.id.etPDescription);
-        String[] pInfo = {etPDesc.getText().toString(), profileUri};
-        String[] gInfo = {};
+        String[] pInfo = {wardProfileUri};
+        String[] gInfo = {guardianProfileUri};
         SignInManager.updateInstances(pInfo, gInfo);
         SignInManager.setSharedPreferences();
-        return true;
     }
 
     protected boolean loadPreferences(View rootView){
@@ -140,11 +216,25 @@ public class ProfileActivity extends Fragment {
         return true;
     }
 
+    @Override
+    public void callbackFunction(JSONObject jsonObject){
+        if(true) {
+            Toast.makeText(getActivity(), "Information has updated", Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(getActivity(), "Unable to update, please validate information", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void callbackFunction(String response){
+
+    }
+
     private void retrieveInfo(View rootView){
 
         String[] gInfo = {MainActivity.guardian_id, "8453544", "This is his niece."};
         String[] pInfo = {"Ah Lin", "Block 412, Jurong West Street 23, Singapore 640412",
-                SignInManager.patientDescription};
+                "The person is currently suffering demnetia"};
 
         int[] gEditText = {R.id.etGName, R.id.etGContact, R.id.etGDescription};
         int[] pEditText = {R.id.etPName, R.id.etPAddress, R.id.etPDescription};
@@ -159,16 +249,17 @@ public class ProfileActivity extends Fragment {
             tempET.setText(pInfo[i]);
         }
 
-        setImage(Uri.parse(SignInManager.patientPhotoUri));
+        setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
+        setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
     }
 
-    public void showDialogBox(Context context){
+    public void showDialogBox(Context context, final int reqCode){
         new AlertDialog.Builder(context)
                 .setTitle("Insert Profile Picture")
-                .setMessage("Please select one option to upload profile picture of patient")
+                .setMessage("Please select one option to upload profile picture")
                 .setPositiveButton(R.string.gallery, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        accessGallery();
+                        accessGallery(reqCode);
                     }
                 })
                 .setNegativeButton(R.string.take_pic, new DialogInterface.OnClickListener() {
@@ -180,40 +271,49 @@ public class ProfileActivity extends Fragment {
                 .show();
     }
 
-    public void accessGallery(){
+    public void accessGallery(int reqCode){
         Intent intent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, reqCode);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
+
             Uri targetUri = data.getData();
-            setImage(targetUri);
+            if(requestCode ==0) {
+                setImage(targetUri, ivProfile);
+            }else{
+                setImage(targetUri, guardianivProfile);
+            }
         }
     }
 
-    protected void setImage(Uri targetUri){
+    protected void setImage(Uri targetUri, ImageView imgView){
             //BitmapFactory.Options o = new BitmapFactory.Options();
             //o.inSampleSize = 5;
             //bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(targetUri),
             //        null, o);
             //bitmap = shrinkBitmap(targetUri.toString(), 150, 150);
         if(targetUri.toString() == "")
-            ivProfile.setImageResource(R.drawable.default_profile);
+            imgView.setImageResource(R.drawable.default_profile);
         else {
-            ivProfile.setImageBitmap(
-                    decodeSampledBitmapFromResource(targetUri, ivProfile.getWidth(), ivProfile.getHeight()));
-            profileUri = targetUri.toString();
-            Log.d("YelinDebug",profileUri);
+            imgView.setImageBitmap(
+                    decodeSampledBitmapFromResource(targetUri, imgView.getWidth(), imgView.getHeight(), imgView));
+            if(imgView.equals(ivProfile))
+                wardProfileUri = targetUri.toString();
+            else
+                guardianProfileUri = targetUri.toString();
+            Log.d("YelinDebug", targetUri.toString());
         }
-            //ivProfile.setImageBitmap(bitmap);
+            //imgView.setImageBitmap(bitmap);
 
     }
 
-    public Bitmap decodeSampledBitmapFromResource(Uri targetUri, int reqWidth, int reqHeight) {
+    public Bitmap decodeSampledBitmapFromResource(Uri targetUri, int reqWidth, int reqHeight,
+                                                  ImageView imgView) {
         Bitmap bitmap;
         try {
             // First decode with inJustDecodeBounds=true to check dimensions
@@ -226,11 +326,17 @@ public class ProfileActivity extends Fragment {
             // Calculate inSampleSize
 
             if(reqWidth == 0 && reqHeight == 0){
-                reqWidth = Integer.parseInt(SignInManager.patientPhotoWScale);
-                reqHeight = Integer.parseInt(SignInManager.patientPhotoHScale);
+                if(imgView.equals(ivProfile)) {
+                    reqWidth = Integer.parseInt(SignInManager.patientPhotoWScale);
+                    reqHeight = Integer.parseInt(SignInManager.patientPhotoHScale);
+                }else{
+
+                    reqWidth = Integer.parseInt(SignInManager.guardianPhotoWScale);
+                    reqHeight = Integer.parseInt(SignInManager.guardianPhotoHScale);
+                }
             }
 
-            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight, imgView);
             Log.d("YelinDebug","Sample Size: " + options.inSampleSize);
 
             // Decode bitmap with inSampleSize set
@@ -244,7 +350,8 @@ public class ProfileActivity extends Fragment {
         return null;
     }
 
-    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight,
+                                     ImageView imgView) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -262,8 +369,13 @@ public class ProfileActivity extends Fragment {
                 inSampleSize *= 2;
             }
         }
-        SignInManager.patientPhotoWScale = String.valueOf(reqWidth);
-        SignInManager.patientPhotoHScale = String.valueOf(reqHeight);
+        if(imgView.equals(ivProfile)) {
+            SignInManager.patientPhotoWScale = String.valueOf(reqWidth);
+            SignInManager.patientPhotoHScale = String.valueOf(reqHeight);
+        }else{
+            SignInManager.guardianPhotoWScale = String.valueOf(reqWidth);
+            SignInManager.guardianPhotoHScale = String.valueOf(reqHeight);
+        }
         return inSampleSize;
     }
 
