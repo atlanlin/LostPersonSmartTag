@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,8 +65,8 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
             JSONObject dObject= jsonObject.getJSONObject("d");
             JSONArray jsonArray = dObject.getJSONArray("list");
             for(int i=0; i<jsonArray.length(); i++){
-                JsonElement eachJsonObject = (JsonElement)jsonArray.get(i);
-                EmergencyEvent eachEvent = gson.fromJson(eachJsonObject, EmergencyEvent.class);
+                JSONObject eachJsonObject = jsonArray.getJSONObject(i);
+                EmergencyEvent eachEvent = gson.fromJson(eachJsonObject.toString(), EmergencyEvent.class);
                 emergencyEventList.add(eachEvent);
             }
         } catch (JSONException e) {
@@ -91,10 +91,10 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
 
     private void fetchEventsArray(String guardian_id){
         String url = MainActivity.SERVER_URI + "/getEvents";
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("guardian_id", guardian_id);
+        HashMap<String, Integer> params = new HashMap<String, Integer>();
+        params.put("guardian_id", Integer.parseInt(guardian_id));
         final MyActivityInteface callback = this;
-        JsonController.jsonObjectPostRequest(url, params,
+        JsonController.jsonObjectPostRequest(url, new JSONObject(params),
                 new MyCallbackInterface() {
                     @Override
                     public void onFetchFinish(JSONObject response) {
@@ -120,6 +120,7 @@ public class ScanHistoryActivity extends Fragment implements MyActivityInteface{
 
     @Override
     public void callbackFunction(JSONObject jsonObject){
+        Log.d("ConnectWithServer", jsonObject.toString());
         ArrayList<EmergencyEvent> emergencyEventArrayList = createEventObjects(jsonObject);
         ArrayList<ScanHistoryFragment> historyFragmentArrayList =
                 createFragmentsFromEventClass(emergencyEventArrayList);

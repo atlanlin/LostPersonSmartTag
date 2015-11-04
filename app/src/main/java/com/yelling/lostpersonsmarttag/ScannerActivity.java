@@ -3,7 +3,9 @@ package com.yelling.lostpersonsmarttag;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,8 +77,11 @@ public class ScannerActivity extends Fragment {
             //get format name of data scanned
             String scanFormat = scanningResult.getFormatName();
             //output to UI
-            tvFormat.setText("FORMAT: "+scanFormat);
-            tvContent.setText("CONTENT: "+scanContent);
+            //tvFormat.setText("FORMAT: "+scanFormat);
+            //tvContent.setText("CONTENT: "+scanContent);
+            Log.d("YeLinDebug", scanContent);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(scanContent));
+            startActivity(browserIntent);
         }
         else{
             //invalid scan data or scan canceled

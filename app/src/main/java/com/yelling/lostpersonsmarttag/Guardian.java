@@ -1,5 +1,7 @@
 package com.yelling.lostpersonsmarttag;
 
+import java.util.HashMap;
+
 /**
  * Created by Yelling on 30/10/15.
  */
@@ -53,6 +55,25 @@ public class Guardian {
         if(address.isEmpty())
             return false;
         return true;
+    }
+
+    public String toString(){
+        String str = "Guardian[guardian id:" + guardian_id + ", login id:" + login_id + ", name:" +
+                name + ", contact no:" + contact_number + ", address:" + address +
+                ", description:" + description;
+        return str;
+
+    }
+    public HashMap<String, String> toHashmap(){
+        HashMap<String, String>hashMap = new HashMap<String, String>();
+        hashMap.put("__type", "Guardian:#");
+        hashMap.put("login_id", login_id);
+        hashMap.put("login_pw", login_pw);
+        hashMap.put("contact_number", contact_number);
+        hashMap.put("name", name);
+        hashMap.put("description", description);
+        hashMap.put("address", address);
+        return hashMap;
     }
 
 }

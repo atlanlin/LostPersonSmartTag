@@ -74,7 +74,7 @@
             style="@style/MyLabelFont"
             />
         <EditText
-            android:id="@+id/etPAddress"
+            android:id="@+id/etGAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/MyTextFont"
@@ -98,7 +98,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Patient's Info"
+        android:text="Ward Info"
         style="@style/MySubTitleFont"
         />
 

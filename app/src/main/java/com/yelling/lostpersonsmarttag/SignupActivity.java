@@ -2,6 +2,7 @@ package com.yelling.lostpersonsmarttag;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,34 +57,52 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
         });
 
         Button btnRegister = (Button)findViewById(R.id.btnRegister);
-        btnRegister.setOnClickListener(new View.OnClickListener(){
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
-                if(isAnyFieldEmpty()){
+            public void onClick(View v) {
+                if (isAnyFieldEmpty()) {
                     Toast.makeText(SignupActivity.this, "Some fields are not filled up"
                             , Toast.LENGTH_LONG).show();
-                }else if(isPasswordSame()){
+                } else if (isPasswordSame()) {
                     Toast.makeText(SignupActivity.this, "Passwords are not the same"
                             , Toast.LENGTH_LONG).show();
-                }else{
-                    HashMap<String,String> params = createHashmapFromEditTexts();
-                    String gcmToken = SignupManager.getGCMToken(userLoginId);
+                } else {
+                    HashMap<String, String> params = createHashmapFromEditTexts();
+                    //String gcmToken = SignupManager.getGCMToken(SignupActivity.this);
+                    SignupManager.getGcmTokenInBackground(SignupActivity.this);
+                    //Log.d("YeLinDebug", "GCM Token: " + gcmToken);
                     Guardian guardian = new Guardian(params.get("etLoginName"), params.get("etPassword"),
                             params.get("etGContact"), params.get("etGName"), params.get("etGDescription"),
-                            params.get("etGAddress"), null, gcmToken);
-                    Ward ward = new Ward(params.get("etWName"), params.get("etWDescription"), null);
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        Gson gson = new Gson();
-                        jsonObject.put("guardian", gson.toJson(guardian));
-                        jsonObject.put("ward", gson.toJson(ward));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    SignupManager.signupOnServer(SignupActivity.this, jsonObject);
+                            params.get("etGAddress"), null, null);
+                    Gson gson = new Gson();
+                    HashMap<String, String> params2 = new HashMap<String, String>();
+                    params2.put("Guardian", gson.toJson(guardian));
+                    //Log.d("ConnectWithServer", params2.toString());
+                    SignupManager.signupGuardianOnServer(SignupActivity.this, params2);
+
+
                 }
             }
         });
+        /*
+        EditText etLoginName = (EditText)findViewById(R.id.etLoginName);
+        etLoginName.setText("yona");
+        EditText etPassword = (EditText)findViewById(R.id.etPassword);
+        etPassword.setText("123");
+        EditText etConfirmPassword = (EditText)findViewById(R.id.etConfirmPassword);
+        etConfirmPassword.setText("123");
+        EditText etGName = (EditText)findViewById(R.id.etGName);
+        etGName.setText("Yona Siren");
+        EditText etGContact = (EditText)findViewById(R.id.etGContact);
+        etGContact.setText("92370270");
+        EditText etGDescription = (EditText)findViewById(R.id.etGDescription);
+        etGDescription.setText("This is his niece");
+
+        EditText etWName = (EditText)findViewById(R.id.etWName);
+        etWName.setText("Ah Lim");
+        EditText etWDesc = (EditText)findViewById(R.id.etWDescription);
+        etWDesc.setText("Person is currently suffering demnetia");
+        */
     }
 
 
@@ -114,7 +133,38 @@ public class SignupActivity extends ActionBarActivity implements MyActivityIntef
 
     @Override
     public void callbackFunction(JSONObject jsonObject){
+        Log.d("ConnectWithServer", jsonObject.toString());
         // write code here
+        try {
+            JSONObject jsob = jsonObject.getJSONObject("d");
+            if(!jsob.isNull("guardian_id")){
+                String guardian_id = jsob.getString("guardian_id");
+                HashMap<String,String> params = createHashmapFromEditTexts();
+                Ward ward = new Ward(params.get("etWName"), params.get("etWTag"), params.get("etWDescription"), null);
+                JSONObject jsob1 = new JSONObject();
+                try {
+                    Gson gson = new Gson();
+                    jsob1.put("ward", gson.toJson(ward));
+                    jsob1.put("guardian_id", guardian_id);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                SignupManager.signupWardOnServer(SignupActivity.this, jsob1);
+            }else{
+                int errorCode = jsob.getInt("errorCode");
+                if(errorCode == 0 ){
+                    Toast.makeText(SignupActivity.this, "Signup successful", Toast.LENGTH_LONG).show();
+
+                }else{
+
+                    Toast.makeText(SignupActivity.this, "Signup unsuccessful, please verify info",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 

@@ -21,7 +21,12 @@
     <style name="MySmallTextFont" parent="@style/Base.TextAppearance.AppCompat.Small.Inverse">
         <item name="android:textStyle">italic</item>
     </style>
-
+    <style name="MySmallInverseTextFont" parent="@style/Base.TextAppearance.AppCompat.Small">
+        <item name="android:textStyle">italic</item>
+    </style>
+    <style name="MySmallInverseLabelFont" parent="@style/Base.TextAppearance.AppCompat.Small">
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="MySigninFont" parent="@style/Base.TextAppearance.AppCompat.Medium.Inverse">
         <item name="android:textStyle">bold</item>
     </style>

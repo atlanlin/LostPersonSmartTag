@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lost Person Smart Tag</string>
+    <string name="app_name">Lost Tag</string>
 
     <string name="title_section1">Profile</string>
     <string name="title_section2">QR Generator</string>

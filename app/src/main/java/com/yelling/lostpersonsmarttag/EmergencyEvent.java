@@ -77,4 +77,10 @@ public class EmergencyEvent implements Parcelable {
         is_approved = in.readInt();
         is_ongoing = in.readInt();
     }
+
+    public String toString(){
+        String str = "Emergency Event[id:" + id + ", helper name:" + finder_name + ", helper description:" +
+                finder_description + ", helper location:" + finder_location + ", scan time:" + scan_time;
+        return str;
+    }
 }

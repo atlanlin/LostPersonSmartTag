@@ -1,5 +1,7 @@
 package com.yelling.lostpersonsmarttag;
 
+import android.util.Log;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -26,6 +28,7 @@ public class JsonController {
         //HashMap<String, String> params = new HashMap<String, String>();
         //params.put("token", "AbCdEfGh123456");
 
+        Log.d("ConnectWithServer", "Sent: " + new JSONObject(params).toString());
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -54,7 +57,7 @@ public class JsonController {
         // Post params to be sent to the server
         //HashMap<String, String> params = new HashMap<String, String>();
         //params.put("token", "AbCdEfGh123456");
-
+        Log.d("ConnectWithServer", "Sent: " + jsonObject.toString());
         JsonObjectRequest req = new JsonObjectRequest(URL, jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override

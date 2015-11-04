@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 
 public class ProfileActivity extends Fragment implements MyActivityInteface{
@@ -34,7 +36,7 @@ public class ProfileActivity extends Fragment implements MyActivityInteface{
      * The fragment argument representing the section number for this
      * fragment.
      */
-    private View rootView;
+    protected View rootView;
     private static final String ARG_SECTION_NUMBER = "section_number";
     public static final String STATE_PROFILE_URI = "profile uri";
     private ViewGroup classContainer;
@@ -218,6 +220,7 @@ public class ProfileActivity extends Fragment implements MyActivityInteface{
 
     @Override
     public void callbackFunction(JSONObject jsonObject){
+        Log.d("ConnectWithServer", "Received: " + jsonObject.toString());
         if(true) {
             Toast.makeText(getActivity(), "Information has updated", Toast.LENGTH_SHORT).show();
         }else {
@@ -230,27 +233,92 @@ public class ProfileActivity extends Fragment implements MyActivityInteface{
 
     }
 
-    private void retrieveInfo(View rootView){
+    private String checkString(String inString){
+        if(inString == null)
+            return "";
+        return inString;
+    }
 
-        String[] gInfo = {MainActivity.guardian_id, "8453544", "This is his niece."};
-        String[] pInfo = {"Ah Lin", "Block 412, Jurong West Street 23, Singapore 640412",
-                "The person is currently suffering demnetia"};
+    protected void retrieveInfo(View rootView){
 
-        int[] gEditText = {R.id.etGName, R.id.etGContact, R.id.etGDescription};
-        int[] pEditText = {R.id.etPName, R.id.etPAddress, R.id.etPDescription};
+        String[] gInfo = {MainActivity.guardian_id, "8453544", "Block 412, Jurong West Street 23, Singapore 640412",
+                "This is his niece."};
+        String[] pInfo = {"Ah Lin", "The person is currently suffering demnetia"};
+        if(MainActivity.myStaticGuardian!=null) {
+            gInfo[0] = MainActivity.myStaticGuardian.name;
+            gInfo[1] = MainActivity.myStaticGuardian.contact_number;
+            gInfo[2] = MainActivity.myStaticGuardian.address;
+            gInfo[3] = MainActivity.myStaticGuardian.description;
+        }
+
+        if(MainActivity.myStaticWard!=null){
+            pInfo[0] = MainActivity.myStaticWard.name;
+            pInfo[1] = MainActivity.myStaticWard.description;
+        }
+
+        //String[] gInfo = {checkString(MainActivity.myStaticGuardian.name),
+        //        checkString(MainActivity.myStaticGuardian.contact_number),
+        //        checkString(MainActivity.myStaticGuardian.address),
+        //        checkString(MainActivity.myStaticGuardian.description)};
+        //String[] pInfo = {checkString(MainActivity.myStaticWard.name),
+        //        checkString(MainActivity.myStaticWard.description)};
+
+        int[] gEditText = {R.id.etGName, R.id.etGContact, R.id.etGAddress, R.id.etGDescription};
+        int[] pEditText = {R.id.etPName, R.id.etPDescription};
 
         for(int i=0; i<gEditText.length; i++){
             EditText tempET = (EditText)rootView.findViewById(gEditText[i]);
             tempET.setText(gInfo[i]);
         }
 
-        for(int i=0; i<gEditText.length; i++){
+        for(int i=0; i<pEditText.length; i++){
             EditText tempET = (EditText)rootView.findViewById(pEditText[i]);
             tempET.setText(pInfo[i]);
         }
 
-        setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
-        setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
+        //setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
+        //setImage(Uri.parse(SignInManager.patientPhotoUri), ivProfile);
+
+
+
+        if(MainActivity.myStaticGuardian != null) {
+            new DownloadImageTask((ImageView) rootView.findViewById(R.id.guardianProfileImage))
+                    .execute(MainActivity.SERVER_URI.substring(0,MainActivity.SERVER_URI.length()-10)
+                            + "/images/" + MainActivity.myStaticGuardian.image_link);
+            Log.d("ImageLink", MainActivity.myStaticGuardian.image_link);
+        }
+        if(MainActivity.myStaticWard != null) {
+            new DownloadImageTask((ImageView) rootView.findViewById(R.id.profileImage))
+                    .execute(MainActivity.SERVER_URI.substring(0,MainActivity.SERVER_URI.length()-10)
+                            + "/images/" + MainActivity.myStaticWard.img_link);
+            Log.d("ImageLink", MainActivity.myStaticWard.img_link);
+        }
+
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
     }
 
     public void showDialogBox(Context context, final int reqCode){

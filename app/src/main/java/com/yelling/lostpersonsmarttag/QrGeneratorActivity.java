@@ -84,7 +84,7 @@ public class QrGeneratorActivity extends Fragment {
             public void onClick(View v) {
                 //MediaStore.Images.Media.insertImage(getContentResolver(), yourBitmap, yourTitle , yourDescription);
                 //String url = CapturePhotoUtils.insertImage(getActivity().getContentResolver(), qrCodeBitmap, "Smart Tag QR Code", "Smart tag qr");
-                createDirectoryAndSaveFile(qrCodeBitmap, "QR_Code_" + System.currentTimeMillis());
+                createDirectoryAndSaveFile(qrCodeBitmap, "Lost_Tag_" + MainActivity.myStaticWard.name);
                 //MediaScannerConnection.MediaScannerConnectionClient mediaClient = new MediaScannerConnection.MediaScannerConnectionClient();
                 String url = "file://" + Environment.getExternalStorageDirectory();
                 //new MediaScannerConnection(getActivity().getApplicationContext(), null).scanFile(url, MimeTypeMap.getFileExtensionFromUrl(url));
@@ -158,9 +158,11 @@ public class QrGeneratorActivity extends Fragment {
         int width = size.x;
         int height = size.y;
         Log.d("YellingDebug", "Width: " + Integer.toString(width));
+        String link = MainActivity.SERVER_URI.substring(0, MainActivity.SERVER_URI.length() - 10);
+        Log.d("YeLinDebug", "Link: " + link);
         String url ="https://api.qrserver.com/v1/create-qr-code/?size=" + Integer.toString(width) +
-                "x" +Integer.toString(width) + "&ward_id=" + MainActivity.myStaticWard.ward_id +
-                "&app=Lost_Person_Tag";
+                "x" +Integer.toString(width) + "&data=" + link + "/Pages/find?q=" +
+                MainActivity.myStaticWard.ward_tag;
 
         // Retrieves an image specified by the URL, displays it in the UI.
         ImageRequest request = new ImageRequest(url,

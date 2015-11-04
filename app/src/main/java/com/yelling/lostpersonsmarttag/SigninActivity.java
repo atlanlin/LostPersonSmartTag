@@ -1,14 +1,18 @@
 package com.yelling.lostpersonsmarttag;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -19,6 +23,7 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
     public static Context contextOfApplication;
 
     private Intent myIntent;
+    private ProgressDialog myProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +82,12 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
                     SignInManager.signinRequest(SigninActivity.this, username
                             , etPassword.getText().toString());
 
+                    View view = SigninActivity.this.getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    myProgressDialog = ProgressDialog.show(SigninActivity.this, "Logging in", "Please wait...");
                     //Toast.makeText(SigninActivity.this, Boolean.toString(request), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.btnSignup:
@@ -89,19 +100,26 @@ public class SigninActivity extends ActionBarActivity  implements MyActivityInte
     @Override
     public void callbackFunction(JSONObject jsonObject){
         try {
+            Log.d("ConnectWithServer", "Received: " + jsonObject.toString());
             JSONObject jsob = jsonObject.getJSONObject("d");
-            String guardian_id = String.valueOf(jsob.getInt("guardian_id"));
-            Boolean loginResult = jsob.getBoolean("login_success");
-            if(loginResult){
+            int loginResult = jsob.getInt(MainActivity.ERROR_CODE_TAG);
+            if(loginResult == 0){
+                String guardian_id = String.valueOf(jsob.getInt("guardian_id"));
                 myIntent= new Intent(SigninActivity.this, MainActivity.class);
                 SignInManager.saveUserId(SigninActivity.this, guardian_id);
                 myIntent.putExtra(USERNAME_KEY, guardian_id);
                 gotoMainPage();
+            }else {
+                Log.d("ConnectWithServer", "Login Error");
+                Toast.makeText(SigninActivity.this, "Login unsuccessful," +
+                        jsob.getJSONObject("errorMsg").toString(), Toast.LENGTH_LONG).show();
+                EditText etPassword = (EditText)findViewById(R.id.etPassword);
+                etPassword.setText("");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+        myProgressDialog.dismiss();
 
     }
 

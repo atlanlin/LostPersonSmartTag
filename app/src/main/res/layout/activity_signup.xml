@@ -121,6 +121,7 @@
                     android:gravity="top"
                     android:minLines="5"
                     android:hint="Describe the condition of the ward (e.g. He is suffering dementia"
+                    style="@style/MyTextFont"
                     />
             </LinearLayout>
 

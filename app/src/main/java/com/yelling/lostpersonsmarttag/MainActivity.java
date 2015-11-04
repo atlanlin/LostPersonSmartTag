@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +35,10 @@ public class MainActivity extends ActionBarActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     public static final String SERVER_URI = "http://10.27.186.191:8082/ASESvc.svc";
+
+    public static final String ERROR_CODE_TAG = "errorCode";
+    public static final String ERROR_MSG_TAG = "errorMsg";
+
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -73,7 +76,6 @@ public class MainActivity extends ActionBarActivity
         ActionBar actionBar=getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
 
-
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -82,6 +84,12 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        String msgReceived = intent.getStringExtra("ms");
+
+        if(msgReceived != null) {
+            onNavigationDrawerItemSelected(3);
+        }
 
     }
 
@@ -139,15 +147,18 @@ public class MainActivity extends ActionBarActivity
         try {
             JSONObject jsob = jsonObject.getJSONObject("d");
             Gson gson = new Gson();
+            //Log.d("ConnectWithServer", jsob.toString());
             if(!jsob.isNull("guardian")) {
-                JsonElement guardianJson = (JsonElement) jsob.get("guardian");
-                myStaticGuardian = gson.fromJson(guardianJson, Guardian.class);
+                JSONObject guardianJson =  jsob.getJSONObject("guardian");
+                Log.d("ConnectWithServer", guardianJson.toString());
+                myStaticGuardian = gson.fromJson(guardianJson.toString(), Guardian.class);
                 guardianRetrieved = true;
             }else if(!jsob.isNull("list")){
                 JSONArray jsonArray = jsob.getJSONArray("list");
+                Log.d("ConnectWithServer", jsonArray.toString());
                 if(jsonArray.length()>0){
-                    JsonElement wardJson = (JsonElement)jsonArray.get(0);
-                    myStaticWard = gson.fromJson(wardJson, Ward.class);
+                    JSONObject wardJson = jsonArray.getJSONObject(0);
+                    myStaticWard = gson.fromJson(wardJson.toString(), Ward.class);
                 }else{
                     Log.d("YeLinDebug", "There are no ward under this guardian");
                 }
@@ -157,6 +168,10 @@ public class MainActivity extends ActionBarActivity
             e.printStackTrace();
         }
         if(guardianRetrieved && wardRetrieved){
+            if(replacedFragment instanceof ProfileActivity){
+                Log.d("YeLinDebug", "It went in");
+                ((ProfileActivity) replacedFragment).retrieveInfo(((ProfileActivity) replacedFragment).rootView);
+            }
             progressDialog.dismiss();
         }
     }
